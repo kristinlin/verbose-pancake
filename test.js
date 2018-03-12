@@ -4,6 +4,7 @@ var stop = document.getElementById("stop");
 var b_size = 500;
 var r = 25;
 var ids = [];
+var svgs = [];
 
 //Clears Stuff
 var clearAll = function(e){
@@ -40,27 +41,34 @@ var rand_color=function(){
 var click_shape = function(e){
     var x = e.offsetX;
     var y = e.offsetY;
+    
+    if ((x < r) || (y < r) || (x > 500-r) || (y > 500-r)) {
+	alert("Bad Choice. Choose again.");
+	return;
+    }
+    
+    c = document.createElementNS("http://www.w3.org/2000/svg", 'circle');
+    c.setAttribute('r', r.toString());
+    c.setAttribute('fill',rand_color());
+    c.setAttribute('cx',x);
+    c.setAttribute('cy',y);
+    c.setAttribute('xmode', Math.floor((Math.random()*3)-1) * 2);
+    c.setAttribute('ymode', Math.floor((Math.random()*3)-1) * 2);
 
-    c = document.createElementNS("http://www.w3.org/2000/svg", 'circle')
-    c.setAttribute('r', r.toString())
-    c.setAttribute('fill',rand_color())
-    c.setAttribute('cx',x)
-    c.setAttribute('cy',y)
-    s.appendChild(c)
-    animate(c);
+    s.appendChild(c);
+    svgs.push(c);
 }
 
-var animate = function(svg) {
-    var rand_dir = Math.floor((Math.random()*3)-1);
-    var y_mode = rand_dir * 2;
-    var x_mode = rand_dir * 2;
+var draw = function() {
 
-
-    
-    var draw = function(svg) {
-	var cx = parseInt(svg.getAttribute('cx'));
-	var cy = parseInt(svg.getAttribute('cy'));
-
+    var cx, cy, x_mode, y_mode, svg;
+    for (var o = 0; o < svgs.length; o++) {
+	svg = svgs[o];
+	cx = parseInt(svg.getAttribute('cx'));
+	cy = parseInt(svg.getAttribute('cy'));
+	x_mode = parseInt(svg.getAttribute('xmode'));
+	y_mode = parseInt(svg.getAttribute('ymode'));
+	
 	//change direction
 	if (cx-r <= 0 || cx+r >= b_size) {
 	    x_mode *= -1;
@@ -73,11 +81,15 @@ var animate = function(svg) {
 	//move the rect
 	svg.setAttribute('cx', (cx+x_mode).toString());
 	svg.setAttribute('cy', (cy+y_mode).toString());
-    }
+	svg.setAttribute('xmode', x_mode.toString());
+	svg.setAttribute('ymode', y_mode.toString());
 
-    //initiate loop
-    ids.push(setInterval( draw, 15, svg ));
+    }
 }
+
+//initiate loop
+ids.push(setInterval( draw, 15 ));
+
 
 s.addEventListener("click", click_shape);
  
