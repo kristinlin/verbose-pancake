@@ -1,43 +1,29 @@
 var s = document.getElementById('not_canvas');
-
-
 var clear = document.getElementById("clear");
-
-
+var stop = document.getElementById("stop");
+var b_size = 500;
+var r = 25;
+var ids = [];
 
 //Clears Stuff
 var clearAll = function(e){
-
-	while (s.lastChild) {
+    while (s.lastChild) {
         s.removeChild(s.lastChild);
     }
-    r = document.createElementNS("http://www.w3.org/2000/svg", 'rect');
-    r.setAttribute('width','500');
-    r.setAttribute('height','500');
-    r.setAttribute('stroke-width','1');
-    r.setAttribute('stroke','green');
-    r.setAttribute('fill','white');
-    s.appendChild(r)
-    
 }
+
+//stop frames; reset frames
+var stop_it = function() {
+    for (var i = 0; i < ids.length; i++) {
+	clearInterval(ids[i]);
+    }
+}
+
 
 clear.addEventListener("click",clearAll);
+stop.addEventListener("click", stop_it);
 
-//Random click on SVG space
-var click_shape = function(e){
-	var x = e.offsetX;
-    var y = e.offsetY;
-
-    c = document.createElementNS("http://www.w3.org/2000/svg", 'circle')
-    c.setAttribute('r','25')
-    c.setAttribute('fill','blue')
-    c.setAttribute('cx',x)
-    c.setAttribute('cy',y)
-    c.setAttribute("remove",'0')
-    c.addEventListener("click", click_one);
-    s.appendChild(c)  
-    
-}
+//======================================================
 
 //Returns random color
 var rand_color=function(){
@@ -49,28 +35,50 @@ var rand_color=function(){
   return ret;
 
 }
-//Click
-var click_one=function(e){
-	//After first click
-	if (this.getAttribute("remove")==0){
-		this.setAttribute("fill", rand_color());
-		this.setAttribute("remove","1")
-	}
-	//After second click, removes and generates new cicle
-	else{
-		this.remove()
-	    c = document.createElementNS("http://www.w3.org/2000/svg", 'circle')
-	    c.setAttribute('r','25')
-	    c.setAttribute('fill','blue')
-	    c.setAttribute('cx',Math.floor(Math.random() * 500))
-	    c.setAttribute('cy',Math.floor(Math.random() * 500))
-	    c.setAttribute("remove",'0')
-	    c.addEventListener("click", click_one);
-	    s.appendChild(c)  		
-	}
-	e.stopPropagation();
+
+//Random click on SVG space
+var click_shape = function(e){
+    var x = e.offsetX;
+    var y = e.offsetY;
+
+    c = document.createElementNS("http://www.w3.org/2000/svg", 'circle')
+    c.setAttribute('r', r.toString())
+    c.setAttribute('fill',rand_color())
+    c.setAttribute('cx',x)
+    c.setAttribute('cy',y)
+    s.appendChild(c)
+    animate(c);
 }
 
-s.addEventListener("click",click_shape);
+var animate = function(svg) {
+    var rand_dir = Math.floor((Math.random()*3)-1);
+    var y_mode = rand_dir * 2;
+    var x_mode = rand_dir * 2;
 
+
+    
+    var draw = function(svg) {
+	var cx = parseInt(svg.getAttribute('cx'));
+	var cy = parseInt(svg.getAttribute('cy'));
+
+	//change direction
+	if (cx-r <= 0 || cx+r >= b_size) {
+	    x_mode *= -1;
+	    svg.setAttribute('fill', rand_color());
+	}
+	if (cy-r <= 0 || cy+r >= b_size) {
+	    y_mode *= -1;
+	    svg.setAttribute('fill', rand_color());
+	}
+	//move the rect
+	svg.setAttribute('cx', (cx+x_mode).toString());
+	svg.setAttribute('cy', (cy+y_mode).toString());
+    }
+
+    //initiate loop
+    ids.push(setInterval( draw, 15, svg ));
+}
+
+s.addEventListener("click", click_shape);
+ 
 
