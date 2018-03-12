@@ -8,6 +8,7 @@ var svgs = [];
 
 //Clears Stuff
 var clearAll = function(e){
+    stop_it();
     while (s.lastChild) {
         s.removeChild(s.lastChild);
     }
@@ -22,7 +23,6 @@ var stop_it = function() {
 
 
 clear.addEventListener("click",clearAll);
-stop.addEventListener("click", stop_it);
 
 //======================================================
 
